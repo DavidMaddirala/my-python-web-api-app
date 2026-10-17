@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-python-web-api-app
+  labels:
+    app: my-python-web-api-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-python-web-api-app
+  template:
+    metadata:
+      labels:
+        app: my-python-web-api-app
+    spec:
+      containers:
+        - name: api
+          image: davidpyapi2026.azurecr.io/my-python-web-api-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
