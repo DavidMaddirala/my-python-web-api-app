@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-python-web-api-app-config
+data:
+  APP_ENV: "aks-dev"
+  WELCOME_MESSAGE: "Hello from AKS!"

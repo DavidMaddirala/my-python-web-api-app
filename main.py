@@ -1,5 +1,12 @@
+import os
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+
+# Plain settings come from a ConfigMap, the secret from Key Vault (both arrive as env vars)
+APP_ENV = os.getenv("APP_ENV", "local")
+WELCOME_MESSAGE = os.getenv("WELCOME_MESSAGE", "Hello from my API!")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 app = FastAPI(title="My Python Web API App")
 
@@ -15,12 +22,23 @@ class ItemIn(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message": "Hello from my API!"}
+    return {"message": WELCOME_MESSAGE}
 
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/config")
+def config():
+    # Never return the secret itself, only whether it was loaded
+    return {
+        "app_env": APP_ENV,
+        "welcome_message": WELCOME_MESSAGE,
+        "db_password_loaded": DB_PASSWORD is not None,
+        "db_password_length": len(DB_PASSWORD) if DB_PASSWORD else 0,
+    }
 
 
 @app.get("/items")

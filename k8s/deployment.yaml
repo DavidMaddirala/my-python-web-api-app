@@ -20,6 +20,19 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: my-python-web-api-app-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-python-web-api-app-secrets
+                  key: DB_PASSWORD
+          volumeMounts:
+            - name: kv-secrets
+              mountPath: /mnt/secrets
+              readOnly: true
           resources:
             requests:
               cpu: 100m
@@ -39,3 +52,10 @@ spec:
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 20
+      volumes:
+        - name: kv-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: my-python-web-api-app-kv
